@@ -1,8 +1,13 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
 from .forms import TrainingForm
 
 # Create your views here.
+from .models import Trainings
+from .serializers import TrainingSerializer
 
 
 def index(request):
@@ -18,3 +23,10 @@ def index(request):
 
 def training_list(request):
     return HttpResponse("ok")
+
+
+class TrainingList(APIView):
+    def get(self, request, format=None):
+        trainings = Trainings.objects.all()
+        serializer = TrainingSerializer(trainings, many=True)
+        return Response(serializer.data)
