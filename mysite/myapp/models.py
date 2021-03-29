@@ -106,7 +106,7 @@ class Trainings(CommonInfo):
     org_by = models.CharField('Organised By', max_length=30)
     from_date = models.DateField('From Date')
     to_Date = models.DateField('To Date', null=True, blank=True)
-    certificate = models.ImageField()
+    certificate = models.ImageField(null=True, blank=True)
 
     def __str__(self):
         return self.training_name
@@ -121,6 +121,10 @@ class Achievements(CommonInfo):
 
     def __str__(self):
         return self.event_name
+
+
+class CoverImage(CommonInfo):
+    photos = models.ImageField(upload_to='images/')
 
 
 
