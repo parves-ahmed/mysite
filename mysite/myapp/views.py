@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.views import View
 from django.views.generic import FormView
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,16 +9,22 @@ from rest_framework import status
 from .forms import TrainingForm, UploadCoverImage
 
 # Create your views here.
-from .models import Trainings, CoverImage
+from .models import Trainings, CoverImage, Projects
 from .serializers import TrainingSerializer
 
 
+# index page
 def index(request):
     cover_image_list = CoverImage.objects.all()
     print(cover_image_list[0].photos.url)
-    return render(request, 'my_app/index.html', {'cover_photos': cover_image_list})
+
+    # def get(self, request, *args, **kwargs):
+    all_projects = Projects.objects.all()
+    print(all_projects[0].project_name)
+    return render(request, 'my_app/index.html', {'cover_photos': cover_image_list, 'projects': all_projects})
 
 
+# upload cover image
 class CoverImageView(FormView):
     form_class = UploadCoverImage
     template_name = 'my_app/cover_image.html'
@@ -38,6 +45,13 @@ class CoverImageView(FormView):
             return self.form_invalid(form)
 
 
+class Project(View):
+    def get(self, request, *args, **kwargs):
+        all_projects = Projects.objects.all()
+        return render(request, 'my_app/index.html', {'projects': all_projects})
+
+
+# Manage training in functional way
 def training(request):
     if request.method == 'GET':
         form = TrainingForm()
@@ -53,6 +67,7 @@ def training_list(request):
     return HttpResponse("ok")
 
 
+# Manage training through API
 class TrainingList(APIView):
     def get(self, request, format=None):
         trainings = Trainings.objects.all()
