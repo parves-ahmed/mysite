@@ -9,19 +9,33 @@ from rest_framework import status
 from .forms import TrainingForm, UploadCoverImage
 
 # Create your views here.
-from .models import Trainings, CoverImage, Projects
+from .models import Trainings, CoverImage, Projects, ProjectType, Companies
 from .serializers import TrainingSerializer
 
 
 # index page
 def index(request):
     cover_image_list = CoverImage.objects.all()
-    print(cover_image_list[0].photos.url)
+    # print(cover_image_list[0].photos.url)
 
-    # def get(self, request, *args, **kwargs):
-    all_projects = Projects.objects.all()
-    print(all_projects[0].project_name)
-    return render(request, 'my_app/index.html', {'cover_photos': cover_image_list, 'projects': all_projects})
+    final_dict = {}
+    all_company = Companies.objects.distinct()
+    for cm in all_company:
+        all_projects = Projects.objects.filter(company_id=cm)
+        all_project_type = [e.project_type for e in all_projects]
+        final_dict[cm] = pp_type(all_project_type)
+
+    # print(all_projects[0].project_name if all_projects else '')
+    # print([e.company for e in all_projects])
+    # print(final_dict)
+    return render(request, 'my_app/index.html', {'cover_photos': cover_image_list, 'projects': final_dict})
+
+
+def pp_type(all_project_type):
+    project_ptype_dict = {}
+    for pt in all_project_type:
+        project_ptype_dict[pt] = Projects.objects.filter(project_type_id=pt)
+    return project_ptype_dict
 
 
 # upload cover image

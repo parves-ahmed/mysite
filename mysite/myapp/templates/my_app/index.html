@@ -1,4 +1,5 @@
 {% extends 'my_app/base.html' %}
+{% load custom_tags %}
 
 {% block content %}
     <div class="container-fluid">
@@ -37,25 +38,116 @@
     </div>
 
     <div class="container">
-        <table class="table">
-            <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">First</th>
-                <th scope="col">Last</th>
-                <th scope="col">Handle</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for project in projects %}
-                <tr>
-                    <th scope="row">1</th>
-                    <td>{{ project.project_name }}</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        {% for key, value in projects.items %}
+            {% project_type key as pt %}
+            <div class="card text-center">
+                <div class="card-header">
+                    {{ key }}
+                    <button class="btn btn-info float-right" id="tst">show</button>
+                </div>
+                <div class="card-body">
+                    <div class="card text-center">
+                        <div class="card-header">
+                            <ul class="nav nav-tabs card-header-tabs" id="bologna-list" role="tablist">
+                                {% for k, val in value.items %}
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#{{ k }}" role="tab"
+                                           aria-controls="{{ k }}" aria-selected="true">{{ k }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div class="card-body">
+                            {% for i, va in value.items %}
+
+                                <table class="table" id="{{ i }}" class="tab-pane active" role="tabpanel">
+                                <input type="hidden" class="pType" value="{{ i }}">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Project Name</th>
+                                        <th scope="col">From</th>
+                                        <th scope="col">To</th>
+                                        <th scope="col">Duration</th>
+                                        <th scope="col">Description</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+{#                                    {% for p in va %}#}
+                                            <tr>
+                                                {#                                            <th scope="row">1</th>#}
+                                                <td>{{ pt }}</td>
+                                                {#                                            <td>Otto</td>#}
+                                                {#                                            <td>@mdo</td>#}
+                                                {#                                            <td>2yr</td>#}
+                                                <td style="justify-content: end">
+                                                    <button type="button" class="btn btn-primary" data-toggle="modal"
+                                                            data-target="#exampleModal">
+                                                        view
+                                                    </button>
+                                                </td>
+                                            </tr>
+{#                                    {% endfor %}#}
+                                    </tbody>
+                                </table>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    2 days ago
+                </div>
+            </div>
+        {% endfor %}
     </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        ...
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+<script type='text/javascript'>
+    $(document).ready(function(){
+        let card_body = $(".card-body").hide();
+        let card_footer = $(".card-footer").hide();
+        let hide = true
+        $("#tst").click(function(){
+            if(hide == true){
+                card_body.show();
+                card_footer.show();
+                hide = false;
+            }
+            else{
+                card_body.hide();
+                card_footer.hide();
+                hide = true;
+            }
+        });
+
+        $('#bologna-list a').on('click', function (e) {
+            e.preventDefault()
+            $(this).tab('show')
+        });
+    });
+</script>
+
 {% endblock content %}
