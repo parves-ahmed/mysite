@@ -37,63 +37,59 @@
         </div>
     </div>
 
-    <div class="container">
-        {% for key, value in projects.items %}
-            {% project_type key as pt %}
-            <div class="card text-center">
+    <div class="container" id="w_body">
+{#    <button class="btn btn-info float-right" id="test" tst_url = "{% url 'test' %}">Test</button>#}
+        {% for com in company %}
+            {% project_type com as pr_type %}
+            <div class="card text-center parent_card">
                 <div class="card-header">
-                    {{ key }}
-                    <button class="btn btn-info float-right" id="tst">show</button>
+                    <p id="company">{{ com }}</p>
+                    <button class="btn btn-info float-right show_btn">show</button>
                 </div>
-                <div class="card-body">
+                <div class="card-body parent_body">
                     <div class="card text-center">
                         <div class="card-header">
                             <ul class="nav nav-tabs card-header-tabs" id="bologna-list" role="tablist">
-                                {% for k, val in value.items %}
+                                {% for pt in pr_type %}
                                     <li class="nav-item">
-                                        <a class="nav-link" href="#{{ k }}" role="tab"
-                                           aria-controls="{{ k }}" aria-selected="true">{{ k }}</a>
+                                        <a class="nav-link" href="#{{ pt }}" role="tab" pt_url = {% url 'projects' %}
+                                           aria-controls="{{ pt }}" aria-selected="true">{{ pt }}</a>
                                     </li>
                                 {% endfor %}
                             </ul>
                         </div>
 
                         <div class="card-body">
-                            {% for i, va in value.items %}
-
-                                <table class="table" id="{{ i }}" class="tab-pane active" role="tabpanel">
-                                <input type="hidden" class="pType" value="{{ i }}">
-                                    <thead>
+                            <table class="table"  id="pr_table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Project Name</th>
+                                    <th scope="col">From</th>
+                                    <th scope="col">To</th>
+                                    <th scope="col">Duration</th>
+                                    <th scope="col">Description</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+{#                                {% for p in all_projects %}#}
                                     <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Project Name</th>
-                                        <th scope="col">From</th>
-                                        <th scope="col">To</th>
-                                        <th scope="col">Duration</th>
-                                        <th scope="col">Description</th>
+                                        {#                                            <th scope="row">1</th>#}
+                                        <td>{{ p }}</td>
+                                        {#                                            <td>Otto</td>#}
+                                        {#                                            <td>@mdo</td>#}
+                                        {#                                            <td>2yr</td>#}
+                                        <td style="justify-content: end">
+                                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                                    data-target="#exampleModal">
+                                                view
+                                            </button>
+                                        </td>
                                     </tr>
-                                    </thead>
-                                    <tbody>
-{#                                    {% for p in va %}#}
-                                            <tr>
-                                                {#                                            <th scope="row">1</th>#}
-                                                <td>{{ pt }}</td>
-                                                {#                                            <td>Otto</td>#}
-                                                {#                                            <td>@mdo</td>#}
-                                                {#                                            <td>2yr</td>#}
-                                                <td style="justify-content: end">
-                                                    <button type="button" class="btn btn-primary" data-toggle="modal"
-                                                            data-target="#exampleModal">
-                                                        view
-                                                    </button>
-                                                </td>
-                                            </tr>
-{#                                    {% endfor %}#}
-                                    </tbody>
-                                </table>
-                            {% endfor %}
+{#                                {% endfor %}#}
+                                </tbody>
+                            </table>
                         </div>
-
                     </div>
                 </div>
                 <div class="card-footer text-muted">
@@ -124,30 +120,74 @@
             </div>
         </div>
 
-
-<script type='text/javascript'>
-    $(document).ready(function(){
-        let card_body = $(".card-body").hide();
-        let card_footer = $(".card-footer").hide();
-        let hide = true
-        $("#tst").click(function(){
-            if(hide == true){
-                card_body.show();
-                card_footer.show();
-                hide = false;
-            }
-            else{
-                card_body.hide();
-                card_footer.hide();
-                hide = true;
-            }
-        });
-
-        $('#bologna-list a').on('click', function (e) {
-            e.preventDefault()
-            $(this).tab('show')
-        });
-    });
-</script>
-
 {% endblock content %}
+
+
+{% block extra_js %}
+{#    <script src='https://code.jquery.com/ui/1.11.4/jquery-ui.js'></script>#}
+    <script>
+        $(document).ready(function () {
+            let card = $('.parent_card')
+            let hide = true
+            card.each(function () {
+                let show_btn = $(this).find('.show_btn')
+                let parent_body = $(this).find('.parent_body').hide()
+                show_btn.click(function () {
+                    if (hide == true)
+                    {
+                        parent_body.show()
+                        hide = false
+                    }
+                    else {
+                        parent_body.hide()
+                        hide = true
+                    }
+                })
+
+                let company = $(this).find('#company').text()
+                let project_type_nav = $(this).find('#bologna-list a')
+                project_type_nav.on('click', function (e) {
+                     e.preventDefault()
+                     let table_id = $(this).attr('href')
+                     table_id = table_id.replace('#', '').trim()
+                     let table = $('#pr_table').attr('id', table_id)
+                     let url = $(this).attr('pt_url')
+                     console.log(company, table_id, url)
+                })
+            })
+
+            {#$('#bologna-list a').on('click', function (e) {#}
+            {#    e.preventDefault()#}
+            {#    let company = $('this').closest('p').find('#company').text()#}
+            {#    let table_id = $(this).attr('href')#}
+            {#    table_id = table_id.replace('#', '').trim()#}
+            {#    let table = $('#pr_table').attr('id', table_id)#}
+            {#    let url = $(this).attr('pt_url')#}
+            {#    console.log(company)#}
+            {#    let i = 0;#}
+            {#    $.ajax({#}
+            {#        url: url,#}
+            {#        data: { 'com_name': company, 'pro_type': table_id },#}
+            {#        dataType: 'json',#}
+            {#        success: function (result) {#}
+            {#            alert(url)#}
+            {#            console.log(result)#}
+            {#            $(result).each(function (idx, val) {#}
+            {#                console.log(table)#}
+            {#                if (company == val['company'] && table_id == val['pro']) {#}
+            {#                    $(table).prepend(#}
+                                    {#$('#pr_table').attr('id', val['id'])#}
+            {#                        `<tr>#}
+            {#                         <td>${i++}</td>#}
+            {#                         <td>${val['company']}</td>#}
+            {#                         </tr>`#}
+            {#                    )#}
+            {#                }#}
+            {#            })#}
+            {#        }#}
+            {#    });#}
+            {#    $(this).tab('show')#}
+            {#});#}
+        });
+    </script>
+{% endblock extra_js %}

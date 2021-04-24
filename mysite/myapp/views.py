@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import FormView
@@ -10,32 +10,15 @@ from .forms import TrainingForm, UploadCoverImage
 
 # Create your views here.
 from .models import Trainings, CoverImage, Projects, ProjectType, Companies
-from .serializers import TrainingSerializer
+from .serializers import TrainingSerializer, GetProjectByProjectTypeSerializer
 
 
 # index page
 def index(request):
     cover_image_list = CoverImage.objects.all()
     # print(cover_image_list[0].photos.url)
-
-    final_dict = {}
     all_company = Companies.objects.distinct()
-    for cm in all_company:
-        all_projects = Projects.objects.filter(company_id=cm)
-        all_project_type = [e.project_type for e in all_projects]
-        final_dict[cm] = pp_type(all_project_type)
-
-    # print(all_projects[0].project_name if all_projects else '')
-    # print([e.company for e in all_projects])
-    # print(final_dict)
-    return render(request, 'my_app/index.html', {'cover_photos': cover_image_list, 'projects': final_dict})
-
-
-def pp_type(all_project_type):
-    project_ptype_dict = {}
-    for pt in all_project_type:
-        project_ptype_dict[pt] = Projects.objects.filter(project_type_id=pt)
-    return project_ptype_dict
+    return render(request, 'my_app/index.html', {'cover_photos': cover_image_list, 'company': all_company})
 
 
 # upload cover image
@@ -95,3 +78,25 @@ class TrainingList(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# def project_by_project_type(request, pt_id):
+#     if request.method == 'GET':
+#         all_projects = Projects.objects.filter(project_type_id=pt_id)
+#         serializer = GetProjectByProjectTypeSerializer(all_projects, many=True)
+#         print('Got it', serializer.data)
+#         return JsonResponse(serializer.data, safe=False)
+
+
+def project_by_project_type(request):
+    com_name = request.GET.get('com_name', None)
+    pro_type = request.GET.get('pro_type', None)
+    print(com_name, pro_type)
+    projects = Projects.objects.filter(company__company_name=com_name, project_type__project_type_name=pro_type)
+    data = {}
+    for p in projects:
+        data['company'] = p.company.company_name
+        data['pro'] = p.project_type.project_type_name
+        print(data['company'], data['pro'])
+
+    return JsonResponse(data)
